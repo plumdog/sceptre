@@ -7,11 +7,17 @@ Feature: Launch environment
 
   Scenario: launch an environment that already exists
     Given all the stacks in environment "2" are in "CREATE_COMPLETE"
+    and the template for stack "2/A" is "valid_template.json"
+    and the template for stack "2/B" is "valid_template.json"
+    and the template for stack "2/C" is "valid_template.json"
     When the user launches environment "2"
     Then all the stacks in environment "2" are in "CREATE_COMPLETE"
 
   Scenario: launch an environment that partially exists
     Given stack "2/A" exists in "CREATE_COMPLETE" state
+    and the template for stack "2/A" is "valid_template.json"
+    and the template for stack "2/B" is "valid_template.json"
+    and the template for stack "2/C" is "valid_template.json"
     When the user launches environment "2"
     Then all the stacks in environment "2" are in "CREATE_COMPLETE"
 
