@@ -44,8 +44,6 @@ def step_impl(context, environment_name, status):
 @when('the user launches environment "{environment_name}"')
 def step_impl(context, environment_name):
     env = Environment(context.sceptre_dir, environment_name)
-    for stack in get_stack_names(context, environment_name):
-        print(get_template_path(context, stack))
     env.launch()
 
 
@@ -226,5 +224,4 @@ def check_stack_status(context, stack_names, desired_status):
         for stack in response["Stacks"]:
             if stack["StackName"] == stack_name:
                 if stack["StackStatus"] != desired_status:
-                    print(str(stack["StackStatus"]) + " != " + str(desired_status))
-                assert stack["StackStatus"] == desired_status
+                    assert stack["StackStatus"] == desired_status
