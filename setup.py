@@ -48,7 +48,7 @@ setup(
     py_modules=["sceptre"],
     entry_points="""
         [console_scripts]
-        sceptre=sceptre.cli:cli
+        sceptre=sceptre.cli:main
     """,
     data_files=[
         ("sceptre/stack_policies", [
