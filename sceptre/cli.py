@@ -700,6 +700,7 @@ class CustomJsonEncoder(JSONEncoder):
         """
         return str(item)
 
+
 def main():
     if "SCEPTRE_V2" in os.environ:
         cli_v2()

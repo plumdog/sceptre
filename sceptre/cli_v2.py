@@ -23,7 +23,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from jinja2.exceptions import TemplateError
 
 from .environment import Environment
-from .exceptions import SceptreException
+from .exceptions import SceptreException, StackDoesNotExistError
 from .stack_status import StackStatus, StackChangeSetStatus
 from .stack_status_colourer import StackStatusColourer
 from . import __version__
@@ -196,7 +196,9 @@ def delete(ctx, path, recursive):
     if recursive:
         env = _get_env(ctx.obj["sceptre_dir"], path, ctx.obj["options"])
         response = env.delete()
-        if not all(status == StackStatus.COMPLETE for status in response.values()):
+        if not all(
+                status == StackStatus.COMPLETE for status in response.values()
+        ):
             exit(1)
     else:
         stack = _get_stack(ctx.obj["sceptre_dir"], path, ctx.obj["options"])
@@ -238,7 +240,9 @@ def launch(ctx, path, recursive):
     if recursive:
         env = _get_env(ctx.obj["sceptre_dir"], path, ctx.obj["options"])
         response = env.launch()
-        if not all(status == StackStatus.COMPLETE for status in response.values()):
+        if not all(
+                status == StackStatus.COMPLETE for status in response.values()
+        ):
             exit(1)
     else:
         stack = _get_stack(ctx.obj["sceptre_dir"], path, ctx.obj["options"])
@@ -457,7 +461,7 @@ def describe_status(ctx, path, recursive):
             status = stack.get_status()
         except StackDoesNotExistError:
             status = "PENDING"
-        response = {stack.name: status}
+        responses = {stack.name: status}
     write(responses, ctx.obj["output_format"])
 
 

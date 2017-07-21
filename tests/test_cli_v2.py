@@ -373,7 +373,7 @@ class TestCli(object):
         mock_get_stack.return_value = mock_stack
         mock_uuid1().hex = "1"
 
-        result = self.runner.invoke(
+        self.runner.invoke(
             cli, ["update-cs", "config/dev/vpc.yaml", "--verbose"], input="yes"
         )
 
@@ -419,7 +419,7 @@ class TestCli(object):
         mock_get_stack.return_value = mock_stack
         mock_uuid1().hex = "1"
 
-        result = self.runner.invoke(
+        self.runner.invoke(
             cli, ["update-cs", "config/dev/vpc.yaml", "--verbose"], input="n"
         )
 
@@ -477,15 +477,27 @@ class TestCli(object):
             ["describe-outputs", "--export=envvar", "config/dev/vpc.yaml"])
         assert result.output == "export SCEPTRE_key=value\n"
 
+    @patch("sceptre.cli_v2._get_stack")
+    def test_describe_status(self, mock_get_stack):
+        mock_stack = Mock()
+        mock_stack.name = "vpc"
+        mock_stack.get_status.return_value = "status"
+        mock_get_stack.return_value = mock_stack
+
+        result = self.runner.invoke(
+            cli, ["describe-status", "config/dev/vpc.yaml"])
+        assert yaml.safe_load(result.output) == {"vpc": "status"}
+
     @patch("sceptre.cli_v2._get_env")
-    def test_describe_env(self, mock_get_env):
+    def test_describe_status_recursive(self, mock_get_env):
         mock_Environment = Mock()
-        mock_Environment.describe.return_value = {"stack": "status"}
+        describe_response = {"stack": "status"}
+        mock_Environment.describe.return_value = describe_response
         mock_get_env.return_value = mock_Environment
 
         result = self.runner.invoke(
             cli, ["describe-status", "-r", "config/dev"])
-        assert result.output == "stack: status\n\n"
+        assert yaml.safe_load(result.output) == describe_response
 
     @patch("sceptre.cli_v2.os.getcwd")
     @patch("sceptre.cli_v2._get_env")
@@ -531,14 +543,12 @@ class TestCli(object):
     def test_get_stack_name(self, path, name):
         assert sceptre.cli_v2._get_stack_name(path) == name
 
-
     @pytest.mark.parametrize("path,env_path", [
         ("config/dev/vpc.yaml", "dev"),
         ("config/dev/ew1/vpc.yaml", "dev/ew1")
     ])
     def test_get_env_path(self, path, env_path):
         assert sceptre.cli_v2._get_env_path(path), env_path
-
 
     @patch("sceptre.cli_v2.os.getcwd")
     @patch("sceptre.cli_v2.Environment")
